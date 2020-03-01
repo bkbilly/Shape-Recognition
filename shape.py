@@ -5,6 +5,7 @@ import signal
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import misc
+import imageio
 from neuralnet import *
 from nnmath import *
 from genetics import GeneticAlgorithm, GAKill
@@ -15,9 +16,10 @@ def read_data(path):
 		for dirname in dirnames:
 			for f in os.listdir(dirpath + dirname):
 				try:
-				    img = np.ravel(misc.imread(dirpath + dirname + '/' + f, flatten=True))/255
+				    img = imageio.imread(dirpath + dirname + '/' + f, as_gray=True)
 				    data.append((dirname, img))
-				except:
+				except Exception as e:
+					print(e)
 					pass
 	return data
 
@@ -31,7 +33,7 @@ def main(argv):
 	if argv[1] == 'train':
 		# Check the input arguments
 		if len(argv) < 5:
-			print "Usage: python shape.py train <GA-epochs> <SGD-epochs> <visFlag>"
+			print ("Usage: python shape.py train <GA-epochs> <SGD-epochs> <visFlag>")
 			sys.exit()
 
 		# Load the training data
@@ -51,10 +53,10 @@ def main(argv):
 								args = [img_len, 10, 4, 3])
 
 		# Create the 1st generation
-		print "Creating population..."
+		print ("Creating population...")
 		ga.populate(200)
 
-		print "Initiating GA heuristic approach..."
+		print ("Initiating GA heuristic approach...")
 
 		# Start evolution
 		errors = []
@@ -66,9 +68,9 @@ def main(argv):
 
 				# Store error
 				errors.append(ga.error)
-				print "error: " + str(ga.error)
+				print ("error: " + str(ga.error))
 			except GAKill as e:
-				print e.message
+				print (e.message)
 				break
 
 		vis = bool(int(argv[4]))
@@ -80,19 +82,19 @@ def main(argv):
 			plt.ylabel('Error')
 			plt.show()
 
-		print "--------------------------------------------------------------\n"
+		print ("--------------------------------------------------------------\n")
 
 		nn = ga.fittest()
 		epochs = int(argv[3])
 		if epochs:
-			print "Initiating Gradient Descent optimization..."
+			print ("Initiating Gradient Descent optimization...")
 			try:
 				nn.gradient_descent(training_data, targets, epochs, test_data=test_data, vis=vis)
 			except GAKill as e:
-				print e.message
+				print (e.message)
 
 		nn.save("neuralnet.pkt")
-		print "Done!"
+		print ("Done!")
 
 	elif argv[1] == "validate":
 		test_data = read_data('test_data/')
@@ -101,16 +103,16 @@ def main(argv):
 		nn.load("neuralnet.pkt")
 
 		accuracy = nn.validate(targets, test_data)
-		print "Accuracy: " + str(accuracy)
+		print ("Accuracy: " + str(accuracy))
 
 	elif argv[1] == "predict":
 		# Check the arguments
 		if len(argv) < 3:
-		    print "Usage: python shape.py test <image>"
+		    print ("Usage: python shape.py test <image>")
 		    sys.exit()
 
 		# Read the test image
-		img = np.ravel(misc.imread(argv[2], flatten=True))/255
+		img = imageio.imread(argv[2], as_grey=True)
 
 		# Build the neural net from file
 		nn = NeuralNet([], build=False)
@@ -118,10 +120,10 @@ def main(argv):
 
 		# Predict
 		activations, zs = nn.feed_forward(img)
-		print targets[np.argmax(activations[-1])]
+		print (targets[np.argmax(activations[-1])])
 
 	else:
-		print "ERROR: Unknown command " + argv[1]
+		print ("ERROR: Unknown command " + argv[1])
 
 
 def signal_handler(signal, frame):

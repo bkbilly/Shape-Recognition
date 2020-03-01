@@ -1,4 +1,6 @@
-import cPickle
+import pickle
+import os
+import sys
 import numpy as np
 import matplotlib.pyplot as plt
 from genetics import Gene
@@ -34,16 +36,27 @@ class NeuralNet(Gene):
 		zs = []
 		activations = [activation]
 		z = activation
-
+		# print("printing z")
+		# print( z)
+	
 		# Propagate through hidden layers
 		for w, b in zip(self.weights[:-1], self.biases[:-1]):
-			z = np.dot(w, activation) + b
+			print("value of w :", w)
+			print("value of b ", b)
+			#z = np.add(np.dot(w, activation) , b)
+			z = np.dot(w, activation) 
 			zs.append(z)
 			activation = sigmoid(z)
 			activations.append(activation)
 
+		# print("printing weights and biases")
+		# print( self.weights)
+		# print("printing  biases")
+		# print(self.biases)
+
 		# Use softmax for output layer
-		z = np.dot(self.weights[-1], activation) + self.biases[-1]
+		#z = np.dot(self.weights[-1], activation) + self.biases[-1]
+		z = np.dot(self.weights[-1], activation) 
 		zs.append(z)
 		activations.append(softmax(z))
 		return (activations, zs)
@@ -104,7 +117,7 @@ class NeuralNet(Gene):
 
 			self.errors[-1] /= m # Normalize the error
 			self.train_accuracies[-1] /= float(m)
-			print "Epoch: " + str(i) + " error: " + str(self.errors[-1]) + " accuracy: " + str(self.test_accuracies[-1]) + " train_accuracy: " + str(self.train_accuracies[-1])
+			print ("Epoch: " + str(i) + " error: " + str(self.errors[-1]) + " accuracy: " + str(self.test_accuracies[-1]) + " train_accuracy: " + str(self.train_accuracies[-1]))
 
 		if vis:
 			plt.figure(1)
@@ -137,12 +150,12 @@ class NeuralNet(Gene):
 	def load(self, filename):
 		'''This method sets the parameters of the neural net from file.'''
 		with open(filename, "r") as f:
-			self.weights, self.biases = cPickle.loads(f.read())
+			self.weights, self.biases = pickle.loads(f.read())
 
 	def save(self, filename):
 		'''This method saves the parameters of the neural net to file.'''
 		with open(filename, "w+") as f:
-			f.write(cPickle.dumps((self.weights,self.biases)))
+			f.write(pickle.dumps((self.weights,self.biases)))
 
 
 	'''*********************** Overload Gene methods ************************'''
