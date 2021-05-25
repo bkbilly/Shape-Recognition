@@ -97,10 +97,10 @@ class GeneticAlgorithm:
 		return offspring
 
 	def roulette(self, n):
-		choice = self.population[-self.popsize/2:]
+		choice = self.population[int(-self.popsize/2):]
 
 		# Gather the fitnesses from the half best population
-		fitnesses = map(lambda x: x.fitness, choice)
+		fitnesses = list(map(lambda x: x.fitness, choice))
 		fitnesses /= np.sum(fitnesses) # Normalise
 
 		return np.random.choice(choice, n, p=fitnesses)

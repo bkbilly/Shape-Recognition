@@ -9,6 +9,7 @@ import imageio
 from neuralnet import *
 from nnmath import *
 from genetics import GeneticAlgorithm, GAKill
+from tqdm import tqdm
 
 def read_data(path):
 	data = []
@@ -19,7 +20,7 @@ def read_data(path):
 				    img = imageio.imread(dirpath + dirname + '/' + f, as_gray=True)
 				    data.append((dirname, img))
 				except Exception as e:
-					print(e)
+					print('error1:', e, f)
 					pass
 	return data
 
@@ -60,7 +61,9 @@ def main(argv):
 
 		# Start evolution
 		errors = []
-		while ga.evolve():
+		# while ga.evolve():
+		pbar = tqdm(range(ga.armageddon))
+		for i in pbar:
 			try:
 				ga.evaluate()
 				ga.crossover()
@@ -68,9 +71,11 @@ def main(argv):
 
 				# Store error
 				errors.append(ga.error)
-				print ("error: " + str(ga.error))
+				# pbar.set_postfix({"error": ga.error})
+				pbar.set_postfix_str(f"error: {ga.error}")
+				# print(f"{ga.epoch}) error: {ga.error}")
 			except GAKill as e:
-				print (e.message)
+				print('error2:', e.message)
 				break
 
 		vis = bool(int(argv[4]))
@@ -91,7 +96,7 @@ def main(argv):
 			try:
 				nn.gradient_descent(training_data, targets, epochs, test_data=test_data, vis=vis)
 			except GAKill as e:
-				print (e.message)
+				print('error3:', e.message)
 
 		nn.save("neuralnet.pkt")
 		print ("Done!")
@@ -112,7 +117,7 @@ def main(argv):
 		    sys.exit()
 
 		# Read the test image
-		img = imageio.imread(argv[2], as_grey=True)
+		img = imageio.imread(argv[2], as_gray=True)
 
 		# Build the neural net from file
 		nn = NeuralNet([], build=False)

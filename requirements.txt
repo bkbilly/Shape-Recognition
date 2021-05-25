@@ -4,3 +4,4 @@ scipy
 pillow
 matplotlib
 imageio
+tqdm

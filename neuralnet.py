@@ -41,8 +41,8 @@ class NeuralNet(Gene):
 	
 		# Propagate through hidden layers
 		for w, b in zip(self.weights[:-1], self.biases[:-1]):
-			print("value of w :", w)
-			print("value of b ", b)
+			# print("value of w :", w)
+			# print("value of b ", b)
 			#z = np.add(np.dot(w, activation) , b)
 			z = np.dot(w, activation) 
 			zs.append(z)
@@ -67,6 +67,7 @@ class NeuralNet(Gene):
 		nabla_w = [np.zeros(w.shape) for w in self.weights]
 
 		activations, zs = self.feed_forward(activation)
+		print(target, activations[-1])
 		self.errors[-1] += square_error(target, activations[-1])
 		if np.argmax(target) == np.argmax(activations[-1]):
 			self.train_accuracies[-1] += 1
@@ -78,7 +79,7 @@ class NeuralNet(Gene):
 		nabla_b[-1] = delta
 
 		# Propagate error to the hidden layers
-		for i in xrange(2, self.n):
+		for i in range(2, self.n):
 			# Calculate the delta for this layer
 			delta = np.dot(self.weights[-i+1].T, delta) * sig_prime(zs[-i])
 
@@ -98,7 +99,8 @@ class NeuralNet(Gene):
 			self.train_accuracies.append(0)
 
 			for tag, img in training_data:
-				target = map(lambda x: int(x in tag), targets)
+				# target = map(lambda x: int(x in tag), targets)
+				target = np.array(list(map(lambda x: int(x in tag), targets)))[:, None]
 				delta_nabla_w, delta_nabla_b = self.backpropagate(img, target)
 
 				# Accumulate the partial derivatives
@@ -188,7 +190,7 @@ class NeuralNet(Gene):
 		error = 0
 
 		for tag, img in training_data:
-			target = np.array(map(lambda x: int(x in tag), targets))
+			target = np.array(list(map(lambda x: int(x in tag), targets)))[:, None]
 			activations, zs = self.feed_forward(img)
 			error += square_error(activations[-1], target)
 
